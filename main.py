@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import os
 import uuid
+import uvicorn
 from pdf_handler import extract_text
 from ai_engine import get_answer, generate_quiz
 from database import init_db, save_chat, get_chat_history, save_quiz_result, get_quiz_stats, update_progress, get_progress
@@ -159,3 +160,8 @@ async def quiz_stats(user_id: str):
         return get_quiz_stats(user_id)
     except Exception as e:
         return {"error": str(e)}
+
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
