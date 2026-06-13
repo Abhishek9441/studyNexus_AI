@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyNexus AI - Smart Study Companion</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <span>StudyNexus</span>
+            </div>
+
+            <div class="upload-section">
+                <div class="upload-box" id="dropZone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drop file here or click to browse</p>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: 6px;">PDF, JPG, PNG, TXT, HTML</p>
+                    <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png,.txt,.html,.htm" hidden>
+                </div>
+                <div class="file-info" id="fileInfo" style="display:none;">
+                    <i class="fas fa-file"></i>
+                    <span id="fileName"></span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-item active" onclick="switchTab('chat')">
+                    <i class="fas fa-comments"></i> Chat
+                </button>
+                <button class="nav-item" onclick="switchTab('quiz')">
+                    <i class="fas fa-question-circle"></i> Quiz
+                </button>
+                <button class="nav-item" onclick="switchTab('progress')">
+                    <i class="fas fa-chart-bar"></i> Progress
+                </button>
+                <button class="nav-item" onclick="switchTab('history')">
+                    <i class="fas fa-history"></i> History
+                </button>
+            </nav>
+
+            <div class="stats-card">
+                <h4>Your Progress</h4>
+                <div class="stat">
+                    <span class="stat-label">Files Uploaded</span>
+                    <span class="stat-value" id="pdfCount">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Questions Asked</span>
+                    <span class="stat-value" id="qCount">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Quizzes Taken</span>
+                    <span class="stat-value" id="quizCount">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Total Score</span>
+                    <span class="stat-value" id="scoreCount">0</span>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <h2 id="pageTitle">Chat with your file</h2>
+                <div class="top-actions">
+                    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                        <i class="fas fa-moon" id="themeIcon"></i>
+                    </button>
+                    <div class="user-badge">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Student</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- CHAT TAB -->
+            <div class="tab-content active" id="chatTab">
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="welcome-message">
+                            <div class="welcome-icon">👋</div>
+                            <h3>Welcome to StudyNexus AI!</h3>
+                            <p>Upload any file (PDF, Image, TXT, HTML) and ask anything about it. I'll help you understand, summarize, and learn!</p>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-area">
+                        <div class="input-wrapper">
+                            <button class="voice-btn" onclick="startVoiceInput()" title="Voice Input">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <input type="text" id="questionInput" placeholder="Ask anything about your file..." disabled>
+                            <button id="sendBtn" onclick="sendQuestion()" disabled>
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QUIZ TAB -->
+            <div class="tab-content" id="quizTab">
+                <div class="quiz-container">
+                    <div class="quiz-setup" id="quizSetup">
+                        <div class="quiz-card">
+                            <i class="fas fa-brain"></i>
+                            <h3>AI Quiz Generator</h3>
+                            <p>I'll create personalized questions from your uploaded file to test your knowledge.</p>
+                            <div class="quiz-options">
+                                <label>Number of Questions (1-100):</label>
+                                <input type="number" id="quizCountInput" value="5" min="1" max="100" placeholder="Enter number">
+                            </div>
+                            <button class="btn-primary" onclick="generateQuiz()" id="genQuizBtn" disabled>
+                                <i class="fas fa-magic"></i> Generate Quiz
+                            </button>
+                        </div>
+                    </div>
+                    <div class="quiz-content" id="quizContent" style="display:none;">
+                        <div id="quizQuestions"></div>
+                        <div class="quiz-actions">
+                            <button class="btn-primary" onclick="submitQuiz()">Submit Answers</button>
+                            <button class="btn-secondary" onclick="shareQuiz()">
+                                <i class="fas fa-share-alt"></i> Share Quiz
+                            </button>
+                        </div>
+                    </div>
+                    <div class="quiz-result" id="quizResult" style="display:none;">
+                        <div class="score-circle">
+                            <span id="scoreValue">0/5</span>
+                        </div>
+                        <h3>Quiz Completed!</h3>
+                        <p id="scoreMessage">Great job!</p>
+                        <div class="result-actions">
+                            <button class="btn-primary" onclick="resetQuiz()">
+                                <i class="fas fa-redo"></i> Try Again
+                            </button>
+                            <button class="btn-secondary" onclick="shareResult()">
+                                <i class="fas fa-share-alt"></i> Share Result
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROGRESS TAB -->
+            <div class="tab-content" id="progressTab">
+                <div class="progress-container">
+                    <h3>Your Learning Dashboard</h3>
+                    <div class="progress-grid">
+                        <div class="progress-card">
+                            <i class="fas fa-file-upload"></i>
+                            <div class="progress-number" id="progressFiles">0</div>
+                            <div class="progress-label">Files Uploaded</div>
+                        </div>
+                        <div class="progress-card">
+                            <i class="fas fa-comments"></i>
+                            <div class="progress-number" id="progressQuestions">0</div>
+                            <div class="progress-label">Questions Asked</div>
+                        </div>
+                        <div class="progress-card">
+                            <i class="fas fa-clipboard-check"></i>
+                            <div class="progress-number" id="progressQuizzes">0</div>
+                            <div class="progress-label">Quizzes Taken</div>
+                        </div>
+                        <div class="progress-card">
+                            <i class="fas fa-star"></i>
+                            <div class="progress-number" id="progressScore">0</div>
+                            <div class="progress-label">Total Score</div>
+                        </div>
+                    </div>
+                    <div class="progress-chart">
+                        <h4>Quiz Performance</h4>
+                        <div class="chart-placeholder">
+                            <p>Chart will appear here after you take quizzes!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HISTORY TAB -->
+            <div class="tab-content" id="historyTab">
+                <div class="history-container">
+                    <h3>Recent Conversations</h3>
+                    <div id="historyList" class="history-list">
+                        <p class="empty-state">No conversations yet. Start chatting!</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay" style="display:none;">
+        <div class="spinner"></div>
+        <p id="loadingText">Processing...</p>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
